@@ -1,6 +1,6 @@
-# ScreenBrightnessByBattery
+# Screen Brightness by Battery
 
-**ScreenBrightnessByBattery** is a simple utility that allows you to adjust your laptop screen brightness based on whether your device is connected to power or running on battery. The program sits in your taskbar, providing quick access to its features through a right-click on the icon.
+**Screen Brightness by Battery** is a simple utility that allows you to adjust your laptop screen brightness based on whether your device is connected to power or running on battery. The program sits in your taskbar, providing quick access to its features through a right-click on the icon.
 
 ![image](https://github.com/user-attachments/assets/eca1f421-d75b-416b-b3a8-cc1d6c836bbe)
 ![image](https://github.com/user-attachments/assets/b6c86b28-a8e3-48a6-a824-d24653aec066)
@@ -14,7 +14,7 @@
 
 ## Installation
 
-To install ScreenBrightnessByBattery, please refer to the [Releases](https://github.com/airtaxi/ScreenBrightnessByBattery/releases) section.
+To install Screen Brightness by Battery, please refer to the [Releases](https://github.com/airtaxi/ScreenBrightnessByBattery/releases) section.
 
 ## License
 
