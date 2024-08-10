@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Window
+    x:Class="ScreenBrightnessByBattery.MainWindow"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:local="using:ScreenBrightnessByBattery"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:tb="using:H.NotifyIcon"
+    Activated="OnWindowActivated"
+    mc:Ignorable="d">
+    <tb:TaskbarIcon
+        ContextMenuMode="SecondWindow"
+        IconSource="ms-appx:///Icon.ico"
+        ToolTipText="Right click to open settings">
+        <tb:TaskbarIcon.ContextFlyout>
+            <MenuFlyout x:Name="MfMain" AreOpenCloseAnimationsEnabled="False">
+                <MenuFlyoutItem IsEnabled="False" Text="Screen Brightness by Battery (made by Howon Lee)" />
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Click="OnOpenSettingsFileMenuFlyoutItemClicked" Text="Open Settings File" />
+                <MenuFlyoutItem Click="OnApplySettingsNowMenuFlyoutItemClicked" Text="Apply Settings Now" />
+                <MenuFlyoutItem x:Name="MfiStartupProcess" Click="OnStartupProcessFlyoutItemClicked" Text="" />
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Click="OnExitMenuFlyoutItemClicked" Text="Exit" />
+            </MenuFlyout>
+        </tb:TaskbarIcon.ContextFlyout>
+    </tb:TaskbarIcon>
+</Window>
