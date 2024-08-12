@@ -1,50 +1,24 @@
 using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
 using Microsoft.Windows.System.Power;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Devices.Power;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using WinUIEx;
-
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
 
 namespace ScreenBrightnessByBattery;
 
 
 public sealed partial class MainWindow : Window
 {
-    const uint MONITOR_DEFAULTTOPRIMARY = 1;
-    private const string DefaultRawBatteryBrightness = "70";
-    private const string DefaultRawAcBrightness = "100";
+    // Constants
+    private const string SettingsDefaultRawBatteryBrightness = "70";
+    private const string SettingsDefaultRawAcBrightness = "100";
+    private const string SettingsSection = "Brightness";
+    private const string SettingsKeyBattery = "Battery";
+    private const string SettingsKeyAc = "AC";
 
+    // Path to the settings file
     private static readonly string SettingsPath = Path.Combine(AppContext.BaseDirectory, "settings.ini");
-
-    [LibraryImport("dxva2.dll", EntryPoint = "GetMonitorBrightness", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool GetMonitorBrightness(IntPtr hMonitor, out int pdwMinimumBrightness, out int pdwCurrentBrightness, out int pdwMaximumBrightness);
-
-    [LibraryImport("user32.dll", SetLastError = true)]
-    private static partial IntPtr GetDesktopWindow();
-
-    [LibraryImport("dxva2.dll", EntryPoint = "SetMonitorBrightness", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static partial bool SetMonitorBrightness(IntPtr hMonitor, int dwNewBrightness);
-
-    [LibraryImport("user32.dll", SetLastError = true)]
-    private static partial IntPtr MonitorFromWindow(IntPtr hwnd, uint dwFlags);
-
 
     public MainWindow()
     {
@@ -57,43 +31,79 @@ public sealed partial class MainWindow : Window
 
         if(!File.Exists(SettingsPath))
         {
-            var result = IniFile.SetValue(SettingsPath, "Brightness", "Battery", DefaultRawBatteryBrightness);
-            result = IniFile.SetValue(SettingsPath, "Brightness", "AC", DefaultRawAcBrightness);
+            var result = IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
+            result = IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, SettingsDefaultRawAcBrightness);
         }
 
         UpdateStartupProcessMenuFlyoutItemText();
         ApplySettings();
     }
 
-    private void OnBatteryReportUpdated(Battery sender, object args) => ApplySettings();
+    // Indicates if the last time we checked the power supply status, we were on battery or not
+    // Null means we haven't checked yet
+    private static bool? s_wasOnBattery;
 
+    /// <summary>
+    /// Applies the brightness settings based on the current power supply status
+    /// Also saves the current brightness settings to the settings file
+    /// </summary>
     private static void ApplySettings()
     {
         var report = Battery.AggregateBattery.GetReport();
         var status = PowerManager.PowerSupplyStatus;
 
+        // Save the current brightness if we were on battery
+        if (s_wasOnBattery == true)
+        {
+            var currentBrightness = WindowsSettingsBrightnessController.Get();
+            IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, currentBrightness.ToString());
+        }
+        // Save the current brightness if we were on AC
+        else
+        {
+            var currentBrightness = WindowsSettingsBrightnessController.Get();
+            IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, currentBrightness.ToString());
+        }
+
         if (status == PowerSupplyStatus.NotPresent)
         {
-            var rawBrightness = IniFile.GetValue(SettingsPath, "Brightness", "Battery", DefaultRawBatteryBrightness);
+            // (Bug?) This method is called multiple times when device is on battery
+            if (s_wasOnBattery == true) return;
+
+            var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
             var success = int.TryParse(rawBrightness, out int brightness);
-            if (!success) brightness = int.Parse(DefaultRawBatteryBrightness);
+            if (!success) brightness = int.Parse(SettingsDefaultRawBatteryBrightness);
             WindowsSettingsBrightnessController.Set(brightness);
+            s_wasOnBattery = true;
         }
         else if (status == PowerSupplyStatus.Adequate || status == PowerSupplyStatus.Inadequate)
         {
-            var rawBrightness = IniFile.GetValue(SettingsPath, "Brightness", "AC", DefaultRawAcBrightness);
+            // (Bug?) This method is called multiple times when device is on AC
+            if (s_wasOnBattery == false) return;
+
+            var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyAc, SettingsDefaultRawAcBrightness);
             var success = int.TryParse(rawBrightness, out int brightness);
-            if (!success) brightness = int.Parse(DefaultRawAcBrightness);
+            if (!success) brightness = int.Parse(SettingsDefaultRawAcBrightness);
             WindowsSettingsBrightnessController.Set(brightness);
+            s_wasOnBattery = false;
         }
     }
 
-    private void OnWindowActivated(object sender, WindowActivatedEventArgs args) => this.Hide();
+    /// <summary>
+    /// Updates the text of the Startup Process Menu Flyout Item
+    /// </summary>
+    private void UpdateStartupProcessMenuFlyoutItemText()
+    {
+        var menuFlyoutItem = MfiStartupProcess;
+        menuFlyoutItem.Text = StartupProcessHelper.IsStartupProcess ? "Remove from Startup Process" : "Add to Startup Process";
+    }
 
+    private void OnBatteryReportUpdated(Battery sender, object args) => ApplySettings();
+
+    // Menu Flyout Item Click Handlers
     private void OnOpenSettingsFileMenuFlyoutItemClicked(object sender, RoutedEventArgs e) => System.Diagnostics.Process.Start("notepad.exe", SettingsPath);
     private void OnApplySettingsNowMenuFlyoutItemClicked(object sender, RoutedEventArgs e) => ApplySettings();
     private void OnExitMenuFlyoutItemClicked(object sender, RoutedEventArgs e) => Environment.Exit(0);
-
     private void OnStartupProcessFlyoutItemClicked(object sender, RoutedEventArgs e)
     {
         if (StartupProcessHelper.IsStartupProcess) StartupProcessHelper.RemoveStartupProcess();
@@ -101,9 +111,5 @@ public sealed partial class MainWindow : Window
         UpdateStartupProcessMenuFlyoutItemText();
     }
 
-    private void UpdateStartupProcessMenuFlyoutItemText()
-    {
-        var menuFlyoutItem = MfiStartupProcess;
-        menuFlyoutItem.Text = StartupProcessHelper.IsStartupProcess ? "Remove from Startup Process" : "Add to Startup Process";
-    }
+    private void OnWindowActivated(object sender, WindowActivatedEventArgs args) => this.Hide();
 }
