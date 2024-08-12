@@ -59,7 +59,7 @@ public sealed partial class MainWindow : Window
             IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, currentBrightness.ToString());
         }
         // Save the current brightness if we were on AC
-        else
+        else if(s_wasOnBattery == false)
         {
             var currentBrightness = WindowsSettingsBrightnessController.Get();
             IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, currentBrightness.ToString());
