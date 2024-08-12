@@ -10,6 +10,7 @@
 
 - **Open Configuration File:** Easily access and edit the configuration file directly from the taskbar.
 - **Apply Settings Immediately:** Instantly apply any changes to your brightness settings without needing to restart the program.
+- **Auto Save Brightness Settings:** The program will save current brightness settings when applying settings (e.g. Remember brightness settings on battery when plugged in to power source)
 - **Add/Remove from Startup:** Quickly add or remove the program from your startup processes, so it runs automatically when your laptop starts.
 
 ## Installation
