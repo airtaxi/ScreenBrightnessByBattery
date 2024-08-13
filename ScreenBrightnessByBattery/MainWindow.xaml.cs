@@ -1,7 +1,10 @@
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.System.Power;
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using Windows.Devices.Power;
 using WinUIEx;
 
@@ -42,50 +45,78 @@ public sealed partial class MainWindow : Window
     // Indicates if the last time we checked the power supply status, we were on battery or not
     // Null means we haven't checked yet
     private static bool? s_wasOnBattery;
+    private static SemaphoreSlim s_applyBrightnessSemaphre = new(1, 1);
 
     /// <summary>
     /// Applies the brightness settings based on the current power supply status
     /// Also saves the current brightness settings to the settings file
     /// </summary>
-    private static void ApplySettings()
+    private static async void ApplySettings()
     {
-        var report = Battery.AggregateBattery.GetReport();
-        var status = PowerManager.PowerSupplyStatus;
+        await s_applyBrightnessSemaphre.WaitAsync();
+        try
+        {
+            var status = PowerManager.PowerSupplyStatus;
+            SaveCurrentBrightnessSettings();
 
+            if (status == PowerSupplyStatus.NotPresent)
+            {
+                // (Widows Bug?) This method is called multiple times when device is on battery
+                if (s_wasOnBattery == true) return;
+
+                // (Widows bug?) Setting brigntness immediately after getting brightness is glitchy
+                await Task.Delay(100);
+
+                // Get the brightness from the settings file
+                var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
+                var success = int.TryParse(rawBrightness, out int brightness);
+                if (!success) brightness = int.Parse(SettingsDefaultRawBatteryBrightness);
+
+                // Apply the brightness settings
+                Debug.WriteLine($"Applying battery brightness {brightness}");
+                WindowsSettingsBrightnessController.Set(brightness);
+                s_wasOnBattery = true;
+            }
+            else if (status == PowerSupplyStatus.Adequate || status == PowerSupplyStatus.Inadequate)
+            {
+                // (Widows Bug?) This method is called multiple times when device is on AC
+                if (s_wasOnBattery == false) return;
+
+                // (Widows bug?) Setting brigntness immediately after getting brightness is glitchy
+                await Task.Delay(100);
+
+                // Get the brightness settings from the settings file
+                var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyAc, SettingsDefaultRawAcBrightness);
+                var success = int.TryParse(rawBrightness, out int brightness);
+                if (!success) brightness = int.Parse(SettingsDefaultRawAcBrightness);
+
+                // Apply the brightness settings
+                Debug.WriteLine($"Applying AC brightness {brightness}");
+                WindowsSettingsBrightnessController.Set(brightness);
+                s_wasOnBattery = false;
+            }
+        }
+        finally { s_applyBrightnessSemaphre.Release(); }
+    }
+
+    /// <summary>
+    /// Saves the current brightness settings to the settings file
+    /// </summary>
+    private static void SaveCurrentBrightnessSettings()
+    {
         // Save the current brightness if we were on battery
         if (s_wasOnBattery == true)
         {
             var currentBrightness = WindowsSettingsBrightnessController.Get();
+            Debug.WriteLine($"Saving battery brightness {currentBrightness}");
             IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, currentBrightness.ToString());
         }
         // Save the current brightness if we were on AC
-        else if(s_wasOnBattery == false)
+        else if (s_wasOnBattery == false)
         {
             var currentBrightness = WindowsSettingsBrightnessController.Get();
+            Debug.WriteLine($"Saving AC brightness {currentBrightness}");
             IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, currentBrightness.ToString());
-        }
-
-        if (status == PowerSupplyStatus.NotPresent)
-        {
-            // (Bug?) This method is called multiple times when device is on battery
-            if (s_wasOnBattery == true) return;
-
-            var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
-            var success = int.TryParse(rawBrightness, out int brightness);
-            if (!success) brightness = int.Parse(SettingsDefaultRawBatteryBrightness);
-            WindowsSettingsBrightnessController.Set(brightness);
-            s_wasOnBattery = true;
-        }
-        else if (status == PowerSupplyStatus.Adequate || status == PowerSupplyStatus.Inadequate)
-        {
-            // (Bug?) This method is called multiple times when device is on AC
-            if (s_wasOnBattery == false) return;
-
-            var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyAc, SettingsDefaultRawAcBrightness);
-            var success = int.TryParse(rawBrightness, out int brightness);
-            if (!success) brightness = int.Parse(SettingsDefaultRawAcBrightness);
-            WindowsSettingsBrightnessController.Set(brightness);
-            s_wasOnBattery = false;
         }
     }
 
