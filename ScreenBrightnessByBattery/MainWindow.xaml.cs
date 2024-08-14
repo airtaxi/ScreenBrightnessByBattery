@@ -65,7 +65,7 @@ public sealed partial class MainWindow : Window
                 if (s_wasOnBattery == true) return;
 
                 // (Widows bug?) Setting brigntness immediately after getting brightness is glitchy
-                await Task.Delay(100);
+                await Task.Delay(1000);
 
                 // Get the brightness from the settings file
                 var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
