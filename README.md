@@ -2,15 +2,12 @@
 
 **Screen Brightness by Battery** is a simple utility that allows you to adjust your laptop screen brightness based on whether your device is connected to power or running on battery. The program sits in your taskbar, providing quick access to its features through a right-click on the icon.
 
-![image](https://github.com/user-attachments/assets/eca1f421-d75b-416b-b3a8-cc1d6c836bbe)
-![image](https://github.com/user-attachments/assets/b6c86b28-a8e3-48a6-a824-d24653aec066)
-
+![image](https://github.com/user-attachments/assets/17b8f6f6-3f76-4d60-9abc-487c1b1f6b8b)
 
 ## Features
 
 - **Open Configuration File:** Easily access and edit the configuration file directly from the taskbar.
-- **Apply Settings Immediately:** Instantly apply any changes to your brightness settings without needing to restart the program.
-- **Auto Save Brightness Settings:** The program will save current brightness settings when applying settings (e.g. Remember brightness settings on battery when plugged in to power source)
+- **Auto Save Brightness Settings:** The program will save current brightness settings periodically
 - **Add/Remove from Startup:** Quickly add or remove the program from your startup processes, so it runs automatically when your laptop starts.
 
 ## Installation
