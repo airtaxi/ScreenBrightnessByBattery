@@ -8,6 +8,7 @@ using Microsoft.UI.Xaml.Navigation;
 using Microsoft.UI.Xaml.Shapes;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -22,6 +23,17 @@ public partial class App : Application
 {
     public App()
     {
+        // Check for duplicated running instances.
+        var currentProcess = Process.GetCurrentProcess();
+        var processes = Process.GetProcessesByName(currentProcess.ProcessName);
+
+        // If there is more than one instance, kill the current one.
+        if (processes.Length > 1)
+        {
+            currentProcess.Kill();
+            return;
+        }
+
         Environment.CurrentDirectory = AppContext.BaseDirectory;
 
         InitializeComponent();
