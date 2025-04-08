@@ -41,11 +41,7 @@ public sealed partial class MainWindow
 
     static MainWindow()
     {
-        BrightnessTimer.Elapsed += async (s, e) =>
-        {
-            await ApplySettingsAsync(); // Application must be called first in order to prevent settings overwrite
-            SaveCurrentBrightnessSettings();
-        };
+        BrightnessTimer.Elapsed += OnBrightnessTimerElapsed;
         BrightnessTimer.Start();
 
         SleepTimer.Elapsed += OnSleepTimerElapsed;
@@ -94,9 +90,9 @@ public sealed partial class MainWindow
 
     // Menu Flyout Item Click Handlers
     private void OnOpenSettingsFileMenuFlyoutItemClicked(object sender, RoutedEventArgs e) => Process.Start("notepad.exe", SettingsPath);
-    private void OnExitMenuFlyoutItemClicked(object sender, RoutedEventArgs e) => Environment.Exit(0);
+    private void OnExitProcessMenuFlyoutItemClicked(object sender, RoutedEventArgs e) => Environment.Exit(0);
 
-    private void OnStartupProcessFlyoutItemClicked(object sender, RoutedEventArgs e)
+    private void OnStartupProcessMenuFlyoutItemClicked(object sender, RoutedEventArgs e)
     {
         // Toggle the startup process
         if (StartupProcessHelper.IsStartupProcess) StartupProcessHelper.RemoveStartupProcess();
@@ -106,19 +102,17 @@ public sealed partial class MainWindow
         UpdateStartupProcessMenuFlyoutItemText();
     }
 
-    private void OnPreventSleepSettingsFlyoutItemClicked(object sender, RoutedEventArgs e)
+    private void OnPreventSleepSettingsMenuFlyoutItemClicked(object sender, RoutedEventArgs e)
     {
         var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedOff) == SleepSettingsPreventSleepWhenExternalMonitorConnectedOn;
         var newValue = isEnabled ? SleepSettingsPreventSleepWhenExternalMonitorConnectedOff : SleepSettingsPreventSleepWhenExternalMonitorConnectedOn;
         IniFile.SetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, newValue);
 
-        UpdatePreventSleepSettingsMenuFlyoutItemText(isEnabled);
+        UpdatePreventSleepSettingsMenuFlyoutItemText();
     }
 
     /// <summary>
     /// This window is not supposed to be shown. Hide it when activated
     /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="args"></param>
     private void OnWindowActivated(object sender, WindowActivatedEventArgs args) => this.Hide();
 }

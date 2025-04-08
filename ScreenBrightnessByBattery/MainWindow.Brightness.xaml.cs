@@ -6,11 +6,22 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Timers;
 
 namespace ScreenBrightnessByBattery;
 
 public sealed partial class MainWindow
 {
+    /// <summary>
+    /// Handles the event when the brightness timer elapses, applying settings and saving the current brightness
+    /// configuration.
+    /// </summary>
+    private static async void OnBrightnessTimerElapsed(object sender, ElapsedEventArgs e)
+    {
+        await ApplySettingsAsync(); // Application must be called first in order to prevent settings overwrite
+        SaveCurrentBrightnessSettings();
+    }
+
     /// <summary>
     /// Indicates if the last time we checked the power supply status, we were on battery or not
     /// Null means we haven't checked yet

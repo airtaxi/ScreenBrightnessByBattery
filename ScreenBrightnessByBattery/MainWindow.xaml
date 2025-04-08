@@ -20,14 +20,14 @@
                 <MenuFlyoutItem Click="OnOpenSettingsFileMenuFlyoutItemClicked" Text="Open Settings File" />
                 <MenuFlyoutItem
                     x:Name="MfiStartupProcess"
-                    Click="OnStartupProcessFlyoutItemClicked"
+                    Click="OnStartupProcessMenuFlyoutItemClicked"
                     Text="" />
                 <MenuFlyoutItem
                     x:Name="MfiPreventSleepSettings"
-                    Click="OnPreventSleepSettingsFlyoutItemClicked"
+                    Click="OnPreventSleepSettingsMenuFlyoutItemClicked"
                     Text="" />
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Click="OnExitMenuFlyoutItemClicked" Text="Exit" />
+                <MenuFlyoutItem Click="OnExitProcessMenuFlyoutItemClicked" Text="Exit" />
             </MenuFlyout>
         </tb:TaskbarIcon.ContextFlyout>
     </tb:TaskbarIcon>
