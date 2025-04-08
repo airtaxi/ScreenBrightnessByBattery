@@ -15,11 +15,11 @@ namespace ScreenBrightnessByBattery;
 public sealed partial class MainWindow : Window
 {
     // Constants
-    private const string SettingsDefaultRawBatteryBrightness = "70";
-    private const string SettingsDefaultRawAcBrightness = "100";
-    private const string SettingsSection = "Brightness";
-    private const string SettingsKeyBattery = "Battery";
-    private const string SettingsKeyAc = "AC";
+    private const string BrightnessSettingsBatteryBrightnessDefault = "70";
+    private const string BrightnessSettingsAcBrightnessDefault = "100";
+    private const string BrightnessSettingsSection = "Brightness";
+    private const string BrightnessSettingsBatteryKey = "Battery";
+    private const string BrightnessSettingsAcKey = "AC";
 
     /// <summary>
     /// Path to the settings file
@@ -30,16 +30,16 @@ public sealed partial class MainWindow : Window
     /// 1500ms is adequate interval.
     /// Change it if you want
     /// </summary>
-    private static readonly System.Timers.Timer SaveCurrentBrightnessSettingsTimer = new(1500);
+    private static readonly System.Timers.Timer BrightnessTimer = new(1500);
 
     static MainWindow()
     {
-        SaveCurrentBrightnessSettingsTimer.Elapsed += async (s, e) =>
+        BrightnessTimer.Elapsed += async (s, e) =>
         {
-            await ApplySettingsAsync();
+            await ApplySettingsAsync(); // Application must be called first in order to prevent settings overwrite
             SaveCurrentBrightnessSettings();
         };
-        SaveCurrentBrightnessSettingsTimer.Start();
+        BrightnessTimer.Start();
     }
 
     public MainWindow()
@@ -50,8 +50,8 @@ public sealed partial class MainWindow : Window
 
         if(!File.Exists(SettingsPath))
         {
-            IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
-            IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, SettingsDefaultRawAcBrightness);
+            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryBrightnessDefault);
+            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryBrightnessDefault);
         }
 
         UpdateStartupProcessMenuFlyoutItemText();
@@ -75,7 +75,7 @@ public sealed partial class MainWindow : Window
             if (s_wasOnBattery == true) return;
 
             // Get the brightness from the settings file
-            var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
+            var rawBrightness = IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryBrightnessDefault);
 
             // Apply the brightness settings if raw brightness is auto
             if (rawBrightness == "auto")
@@ -94,7 +94,7 @@ public sealed partial class MainWindow : Window
 
             // Otherwise, apply the brightness settings
             var success = int.TryParse(rawBrightness, out int brightness);
-            if (!success) brightness = int.Parse(SettingsDefaultRawBatteryBrightness);
+            if (!success) brightness = int.Parse(BrightnessSettingsBatteryBrightnessDefault);
 
             // Apply the brightness settings
             Debug.WriteLine($"Applying battery brightness {brightness}");
@@ -117,7 +117,7 @@ public sealed partial class MainWindow : Window
             if (s_wasOnBattery == false) return;
 
             // Get the brightness settings from the settings file
-            var rawBrightness = IniFile.GetValue(SettingsPath, SettingsSection, SettingsKeyAc, SettingsDefaultRawAcBrightness);
+            var rawBrightness = IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsAcKey, BrightnessSettingsAcBrightnessDefault);
             // Apply the brightness settings if raw brightness is auto
             if (rawBrightness == "auto")
             {
@@ -135,7 +135,7 @@ public sealed partial class MainWindow : Window
 
             // Otherwise, apply the brightness settings
             var success = int.TryParse(rawBrightness, out int brightness);
-            if (!success) brightness = int.Parse(SettingsDefaultRawAcBrightness);
+            if (!success) brightness = int.Parse(BrightnessSettingsAcBrightnessDefault);
 
             // Apply the brightness settings
             Debug.WriteLine($"Applying AC brightness {brightness}");
@@ -167,14 +167,14 @@ public sealed partial class MainWindow : Window
             if(isAdaptiveBrightnessEnabled == true)
             {
                 Debug.WriteLine("Saving battery brightness: auto");
-                IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, "auto");
+                IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, "auto");
                 return;
             }
 
             // Otherwise, save the current brightness
             var currentBrightness = PowerConfigBrightnessHelper.Get(!IsOnBattery);
             Debug.WriteLine($"Saving battery brightness: {currentBrightness}");
-            IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, currentBrightness.ToString());
+            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, currentBrightness.ToString());
         }
         // Save the current brightness if we are on AC
         else if(!IsOnBattery && s_wasOnBattery == false)
@@ -184,14 +184,14 @@ public sealed partial class MainWindow : Window
             if (isAdaptiveBrightnessEnabled == true)
             {
                 Debug.WriteLine("Saving AC brightness: auto");
-                IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, "auto");
+                IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsAcKey, "auto");
                 return;
             }
 
             // Otherwise, save the current brightness
             var currentBrightness = PowerConfigBrightnessHelper.Get(!IsOnBattery);
             Debug.WriteLine($"Saving AC brightness: {currentBrightness}");
-            IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, currentBrightness.ToString());
+            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsAcKey, currentBrightness.ToString());
         }
     }
 
