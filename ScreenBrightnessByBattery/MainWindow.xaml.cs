@@ -50,8 +50,8 @@ public sealed partial class MainWindow : Window
 
         if(!File.Exists(SettingsPath))
         {
-            var result = IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
-            result = IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, SettingsDefaultRawAcBrightness);
+            IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, SettingsDefaultRawBatteryBrightness);
+            IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, SettingsDefaultRawAcBrightness);
         }
 
         UpdateStartupProcessMenuFlyoutItemText();
@@ -101,14 +101,14 @@ public sealed partial class MainWindow : Window
 
             // Bugfix: Set different two brightness values to force the brightness to change
             // (Maybe on surface devices. My device has this issue)
-            if (brightness > 50) PowerConfigBrightnessController.Set(25);
-            else PowerConfigBrightnessController.Set(75);
+            if (brightness > 50) PowerConfigBrightnessHelper.Set(25);
+            else PowerConfigBrightnessHelper.Set(75);
 
             // Wait for a while to let the brightness change (500ms is adequate)
             await Task.Delay(500);
 
             // Set the actual brightness
-            PowerConfigBrightnessController.Set(brightness);
+            PowerConfigBrightnessHelper.Set(brightness);
             s_wasOnBattery = true;
         }
         else
@@ -142,14 +142,14 @@ public sealed partial class MainWindow : Window
 
             // Bugfix: Set different two brightness values to force the brightness to change
             // (Maybe on surface devices. My device has this issue)
-            if (brightness > 50) PowerConfigBrightnessController.Set(25);
-            else PowerConfigBrightnessController.Set(75);
+            if (brightness > 50) PowerConfigBrightnessHelper.Set(25);
+            else PowerConfigBrightnessHelper.Set(75);
 
             // Wait for a while to let the brightness change (500ms is adequate)
             await Task.Delay(500);
 
             // Set the actual brightness
-            PowerConfigBrightnessController.Set(brightness);
+            PowerConfigBrightnessHelper.Set(brightness);
             s_wasOnBattery = false;
         }
     }
@@ -172,7 +172,7 @@ public sealed partial class MainWindow : Window
             }
 
             // Otherwise, save the current brightness
-            var currentBrightness = PowerConfigBrightnessController.Get(!IsOnBattery);
+            var currentBrightness = PowerConfigBrightnessHelper.Get(!IsOnBattery);
             Debug.WriteLine($"Saving battery brightness: {currentBrightness}");
             IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyBattery, currentBrightness.ToString());
         }
@@ -189,7 +189,7 @@ public sealed partial class MainWindow : Window
             }
 
             // Otherwise, save the current brightness
-            var currentBrightness = PowerConfigBrightnessController.Get(!IsOnBattery);
+            var currentBrightness = PowerConfigBrightnessHelper.Get(!IsOnBattery);
             Debug.WriteLine($"Saving AC brightness: {currentBrightness}");
             IniFile.SetValue(SettingsPath, SettingsSection, SettingsKeyAc, currentBrightness.ToString());
         }

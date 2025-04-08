@@ -7,9 +7,9 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
-namespace ScreenBrightnessByBattery;
+namespace ScreenBrightnessByBattery.Helpers;
 
-public static partial class PowerConfigBrightnessController
+public static partial class PowerConfigBrightnessHelper
 {
     /// <summary>
     /// The GUID of the subgroup that contains the brightness setting.
@@ -46,7 +46,7 @@ public static partial class PowerConfigBrightnessController
         process.WaitForExit();
 
         // Split the output into lines based on the environment's newline character.
-        var lines = output.Split(new[] { Environment.NewLine }, StringSplitOptions.None);
+        var lines = output.Split([Environment.NewLine], StringSplitOptions.None);
 
         // Iterate over each line to find one containing the "AC" or "DC" keyword.
         foreach (var line in lines)
