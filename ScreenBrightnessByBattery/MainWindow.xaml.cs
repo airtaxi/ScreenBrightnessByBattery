@@ -1,5 +1,6 @@
 using Microsoft.UI.Xaml;
 using Microsoft.Windows.System.Power;
+using ScreenBrightnessByBattery.Helpers;
 using System;
 using System.Diagnostics;
 using System.IO;

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ScreenBrightnessByBattery;
+namespace ScreenBrightnessByBattery.Helpers;
 
 public static class StartupProcessHelper
 {
