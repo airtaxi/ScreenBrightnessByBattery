@@ -23,6 +23,9 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<Compile Update="MainWindow.Sleep.xaml.cs">
+		  <DependentUpon>MainWindow.xaml</DependentUpon>
+		</Compile>
 		<Compile Update="MainWindow.Brightness.xaml.cs">
 			<DependentUpon>MainWindow.xaml</DependentUpon>
 		</Compile>

@@ -22,6 +22,10 @@
                     x:Name="MfiStartupProcess"
                     Click="OnStartupProcessFlyoutItemClicked"
                     Text="" />
+                <MenuFlyoutItem
+                    x:Name="MfiPreventSleepSettings"
+                    Click="OnPreventSleepSettingsFlyoutItemClicked"
+                    Text="" />
                 <MenuFlyoutSeparator />
                 <MenuFlyoutItem Click="OnExitMenuFlyoutItemClicked" Text="Exit" />
             </MenuFlyout>

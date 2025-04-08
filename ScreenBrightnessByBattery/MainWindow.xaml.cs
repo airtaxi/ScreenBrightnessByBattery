@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Timers;
 using Windows.Devices.Power;
 using WinUIEx;
 
@@ -20,6 +21,11 @@ public sealed partial class MainWindow
     private const string BrightnessSettingsSection = "Brightness";
     private const string BrightnessSettingsBatteryKey = "Battery";
     private const string BrightnessSettingsAcKey = "AC";
+    private const string SleepSettingsSection = "Sleep";
+    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedKey = "Battery";
+    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedOn = "on";
+    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedOff = "off";
+    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault = "on";
 
     /// <summary>
     /// Path to the settings file
@@ -41,6 +47,9 @@ public sealed partial class MainWindow
             SaveCurrentBrightnessSettings();
         };
         BrightnessTimer.Start();
+
+        SleepTimer.Elapsed += OnSleepTimerElapsed;
+        SleepTimer.Start();
     }
 
     public MainWindow()
@@ -53,6 +62,7 @@ public sealed partial class MainWindow
         {
             IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryBrightnessDefault);
             IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryBrightnessDefault);
+            IniFile.SetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault);
         }
 
         UpdateStartupProcessMenuFlyoutItemText();
@@ -70,9 +80,22 @@ public sealed partial class MainWindow
         menuFlyoutItem.Text = StartupProcessHelper.IsStartupProcess ? "Remove from Startup Process" : "Add to Startup Process";
     }
 
+    private void UpdatePreventSleepSettingsMenuFlyoutItemText()
+    {
+        // Get the menu flyout item
+        var menuFlyoutItem = MfiPreventSleepSettings;
+
+        // Update the text of the menu flyout item based on the current prevent sleep settings status
+        MfiPreventSleepSettings.Text =
+            IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedOff) == SleepSettingsPreventSleepWhenExternalMonitorConnectedOn
+            ? "Prevent Sleep (External Monitor): Off"
+            : "Prevent Sleep (External Monitor): On";
+    }
+
     // Menu Flyout Item Click Handlers
     private void OnOpenSettingsFileMenuFlyoutItemClicked(object sender, RoutedEventArgs e) => Process.Start("notepad.exe", SettingsPath);
     private void OnExitMenuFlyoutItemClicked(object sender, RoutedEventArgs e) => Environment.Exit(0);
+
     private void OnStartupProcessFlyoutItemClicked(object sender, RoutedEventArgs e)
     {
         // Toggle the startup process
@@ -81,6 +104,15 @@ public sealed partial class MainWindow
 
         // Update the text of the menu flyout item
         UpdateStartupProcessMenuFlyoutItemText();
+    }
+
+    private void OnPreventSleepSettingsFlyoutItemClicked(object sender, RoutedEventArgs e)
+    {
+        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedOff) == SleepSettingsPreventSleepWhenExternalMonitorConnectedOn;
+        var newValue = isEnabled ? SleepSettingsPreventSleepWhenExternalMonitorConnectedOff : SleepSettingsPreventSleepWhenExternalMonitorConnectedOn;
+        IniFile.SetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, newValue);
+
+        UpdatePreventSleepSettingsMenuFlyoutItemText(isEnabled);
     }
 
     /// <summary>
