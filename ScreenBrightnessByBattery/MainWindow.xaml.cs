@@ -60,7 +60,7 @@ public sealed partial class MainWindow
         InitializeComponent();
 
         AppWindow.IsShownInSwitchers = false;
-        AppWindow.SetIcon("Icon.ico")
+        AppWindow.SetIcon("Icon.ico");
 
         if(!File.Exists(SettingsPath))
         {
