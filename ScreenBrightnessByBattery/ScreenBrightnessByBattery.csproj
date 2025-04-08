@@ -23,10 +23,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Compile Include="MainWindow.xaml.cs">
-			<DependentUpon>MainWindow.xaml</DependentUpon>
-		</Compile>
-		<Compile Include="MainWindow.Brightness.xaml.cs">
+		<Compile Update="MainWindow.Brightness.xaml.cs">
 			<DependentUpon>MainWindow.xaml</DependentUpon>
 		</Compile>
 	</ItemGroup>
