@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 	<PropertyGroup>
 		<OutputType>WinExe</OutputType>
-		<TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+		<TargetFramework>net9.0-windows10.0.22621.0</TargetFramework>
 		<TargetPlatformMinVersion>10.0.17763.0</TargetPlatformMinVersion>
 		<RootNamespace>ScreenBrightnessByBattery</RootNamespace>
 		<ApplicationManifest>app.manifest</ApplicationManifest>
@@ -31,11 +31,11 @@
 		</Compile>
 	</ItemGroup>
 	<ItemGroup>
-		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.1.0" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.5.240627000" />
-		<PackageReference Include="System.Management" Version="8.0.0" />
-		<PackageReference Include="WinUIEx" Version="2.3.4" />
+		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.3.0" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.1742" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250310001" />
+		<PackageReference Include="System.Management" Version="9.0.3" />
+		<PackageReference Include="WinUIEx" Version="2.5.1" />
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
 
