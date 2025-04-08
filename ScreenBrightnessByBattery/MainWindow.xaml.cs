@@ -16,16 +16,20 @@ namespace ScreenBrightnessByBattery;
 public sealed partial class MainWindow
 {
     // Constants
-    private const string BrightnessSettingsBatteryBrightnessDefault = "70";
-    private const string BrightnessSettingsAcBrightnessDefault = "100";
+    private const string BooleanSettingsOn = "on";
+    private const string BooleanSttingsOff = "off";
+
     private const string BrightnessSettingsSection = "Brightness";
-    private const string BrightnessSettingsBatteryKey = "Battery";
-    private const string BrightnessSettingsAcKey = "AC";
     private const string SleepSettingsSection = "Sleep";
+
+    private const string BrightnessSettingsBatteryKey = "Battery";
+    private const string BrightnessSettingsBatteryDefault = "70";
+
+    private const string BrightnessSettingsAcKey = "AC";
+    private const string BrightnessSettingsAcBrightnessDefault = "100";
+
     private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedKey = "Battery";
-    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedOn = "on";
-    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedOff = "off";
-    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault = "on";
+    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault = BooleanSttingsOff;
 
     /// <summary>
     /// Path to the settings file
@@ -56,8 +60,8 @@ public sealed partial class MainWindow
 
         if(!File.Exists(SettingsPath))
         {
-            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryBrightnessDefault);
-            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryBrightnessDefault);
+            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryDefault);
+            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryDefault);
             IniFile.SetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault);
         }
 
@@ -83,7 +87,7 @@ public sealed partial class MainWindow
 
         // Update the text of the menu flyout item based on the current prevent sleep settings status
         MfiPreventSleepSettings.Text =
-            IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedOff) == SleepSettingsPreventSleepWhenExternalMonitorConnectedOn
+            IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, BooleanSttingsOff) == BooleanSettingsOn
             ? "Prevent Sleep (External Monitor): Off"
             : "Prevent Sleep (External Monitor): On";
     }
@@ -104,8 +108,8 @@ public sealed partial class MainWindow
 
     private void OnPreventSleepSettingsMenuFlyoutItemClicked(object sender, RoutedEventArgs e)
     {
-        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedOff) == SleepSettingsPreventSleepWhenExternalMonitorConnectedOn;
-        var newValue = isEnabled ? SleepSettingsPreventSleepWhenExternalMonitorConnectedOff : SleepSettingsPreventSleepWhenExternalMonitorConnectedOn;
+        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, BooleanSttingsOff) == BooleanSettingsOn;
+        var newValue = isEnabled ? BooleanSttingsOff : BooleanSettingsOn;
         IniFile.SetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, newValue);
 
         UpdatePreventSleepSettingsMenuFlyoutItemText();

@@ -45,7 +45,7 @@ public sealed partial class MainWindow
             if (s_wasOnBattery == true) return;
 
             // Get the brightness from the settings file
-            var rawBrightness = IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryBrightnessDefault);
+            var rawBrightness = IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryDefault);
 
             // Apply the brightness settings if raw brightness is auto
             if (rawBrightness == "auto")
@@ -64,7 +64,7 @@ public sealed partial class MainWindow
 
             // Otherwise, apply the brightness settings
             var success = int.TryParse(rawBrightness, out int brightness);
-            if (!success) brightness = int.Parse(BrightnessSettingsBatteryBrightnessDefault);
+            if (!success) brightness = int.Parse(BrightnessSettingsBatteryDefault);
 
             // Apply the brightness settings
             Debug.WriteLine($"Applying battery brightness {brightness}");
