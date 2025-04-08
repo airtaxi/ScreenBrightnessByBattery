@@ -28,7 +28,7 @@ public sealed partial class MainWindow
     private const string BrightnessSettingsAcKey = "AC";
     private const string BrightnessSettingsAcBrightnessDefault = "100";
 
-    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedKey = "Battery";
+    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedKey = "Enabled";
     private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault = BooleanSettingsOff;
 
     private const string BrightnessSettingsEnabledKey = "Enabled";
@@ -70,6 +70,8 @@ public sealed partial class MainWindow
         }
 
         UpdateStartupProcessMenuFlyoutItemText();
+        UpdateScreenBrightnessByBatteryMenuFlyoutItemText();
+        UpdatePreventSleepSettingsMenuFlyoutItemText();
     }
 
     /// <summary>
@@ -92,8 +94,8 @@ public sealed partial class MainWindow
         // Update the text of the menu flyout item based on the current prevent sleep settings status
         MfiPreventSleepSettings.Text =
             IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault) == BooleanSettingsOn
-            ? "Prevent Sleep (External Monitor): Off"
-            : "Prevent Sleep (External Monitor): On";
+            ? "Prevent Sleep (External Monitor): Enabled"
+            : "Prevent Sleep (External Monitor): Disabled";
     }
 
     // Menu Flyout Item Click Handlers
@@ -136,8 +138,8 @@ public sealed partial class MainWindow
         // Update the text of the menu flyout item based on the current screen brightness by battery status
         menuFlyoutItem.Text =
             IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, BrightnessSettingsEnabledDefault) == BooleanSettingsOn
-            ? "Screen Brightness by Battery: Off"
-            : "Screen Brightness by Battery: On";
+            ? "Screen Brightness by Battery: Enabled"
+            : "Screen Brightness by Battery: Disabled";
     }
 
     /// <summary>
