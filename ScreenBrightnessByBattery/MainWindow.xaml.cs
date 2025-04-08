@@ -69,9 +69,24 @@ public sealed partial class MainWindow
             IniFile.SetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault);
         }
 
-        UpdateStartupProcessMenuFlyoutItemText();
         UpdateScreenBrightnessByBatteryMenuFlyoutItemText();
         UpdatePreventSleepSettingsMenuFlyoutItemText();
+        UpdateStartupProcessMenuFlyoutItemText();
+    }
+
+    /// <summary>
+    /// Updates the text of the Screen Brightness by Battery Menu Flyout Item
+    /// </summary>
+    private void UpdateScreenBrightnessByBatteryMenuFlyoutItemText()
+    {
+        // Get the menu flyout item
+        var menuFlyoutItem = MfiScreenBrightnessByBattery;
+
+        // Update the text of the menu flyout item based on the current screen brightness by battery status
+        menuFlyoutItem.Text =
+            IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, BrightnessSettingsEnabledDefault) == BooleanSettingsOn
+            ? "Screen Brightness by Battery: Enabled"
+            : "Screen Brightness by Battery: Disabled";
     }
 
     /// <summary>
@@ -86,6 +101,9 @@ public sealed partial class MainWindow
         menuFlyoutItem.Text = StartupProcessHelper.IsStartupProcess ? "Remove from Startup Process" : "Add to Startup Process";
     }
 
+    /// <summary>
+    /// Updates the text of the Prevent Sleep Settings Menu Flyout Item
+    /// </summary>
     private void UpdatePreventSleepSettingsMenuFlyoutItemText()
     {
         // Get the menu flyout item
@@ -128,18 +146,6 @@ public sealed partial class MainWindow
         IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, newValue);
 
         UpdateScreenBrightnessByBatteryMenuFlyoutItemText();
-    }
-
-    private void UpdateScreenBrightnessByBatteryMenuFlyoutItemText()
-    {
-        // Get the menu flyout item
-        var menuFlyoutItem = MfiScreenBrightnessByBattery;
-
-        // Update the text of the menu flyout item based on the current screen brightness by battery status
-        menuFlyoutItem.Text =
-            IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, BrightnessSettingsEnabledDefault) == BooleanSettingsOn
-            ? "Screen Brightness by Battery: Enabled"
-            : "Screen Brightness by Battery: Disabled";
     }
 
     /// <summary>
