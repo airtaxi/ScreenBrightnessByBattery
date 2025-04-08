@@ -17,14 +17,19 @@
             <MenuFlyout x:Name="MfMain" AreOpenCloseAnimationsEnabled="False">
                 <MenuFlyoutItem IsEnabled="False" Text="Screen Brightness by Battery (made by Howon Lee)" />
                 <MenuFlyoutSeparator />
-                <MenuFlyoutItem Click="OnOpenSettingsFileMenuFlyoutItemClicked" Text="Open Settings File" />
                 <MenuFlyoutItem
-                    x:Name="MfiStartupProcess"
-                    Click="OnStartupProcessMenuFlyoutItemClicked"
+                    x:Name="MfiScreenBrightnessByBattery"
+                    Click="OnScreenBrightnessByBatteryMenuFlyoutItemClicked"
                     Text="" />
                 <MenuFlyoutItem
                     x:Name="MfiPreventSleepSettings"
                     Click="OnPreventSleepSettingsMenuFlyoutItemClicked"
+                    Text="" />
+                <MenuFlyoutSeparator />
+                <MenuFlyoutItem Click="OnOpenSettingsFileMenuFlyoutItemClicked" Text="Open Settings File" />
+                <MenuFlyoutItem
+                    x:Name="MfiStartupProcess"
+                    Click="OnStartupProcessMenuFlyoutItemClicked"
                     Text="" />
                 <MenuFlyoutSeparator />
                 <MenuFlyoutItem Click="OnExitProcessMenuFlyoutItemClicked" Text="Exit" />

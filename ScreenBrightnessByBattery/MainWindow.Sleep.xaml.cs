@@ -17,7 +17,7 @@ public sealed partial class MainWindow
     /// </summary>
     private static void OnSleepTimerElapsed(object sender, ElapsedEventArgs e)
     {
-        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, BooleanSttingsOff) == BooleanSettingsOn;
+        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault) == BooleanSettingsOn;
 
         var isActive = SleepModeHelper.IsPreventingActive();
         var isExternalMonitorConnected = SleepModeHelper.IsExternalMonitorConnected();

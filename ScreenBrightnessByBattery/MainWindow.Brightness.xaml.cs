@@ -18,6 +18,9 @@ public sealed partial class MainWindow
     /// </summary>
     private static async void OnBrightnessTimerElapsed(object sender, ElapsedEventArgs e)
     {
+        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, BrightnessSettingsEnabledDefault) == BooleanSettingsOn;
+        if (!isEnabled) return;
+
         await ApplySettingsAsync(); // Application must be called first in order to prevent settings overwrite
         SaveCurrentBrightnessSettings();
     }

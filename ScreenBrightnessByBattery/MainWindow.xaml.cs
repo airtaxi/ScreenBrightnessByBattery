@@ -17,7 +17,7 @@ public sealed partial class MainWindow
 {
     // Constants
     private const string BooleanSettingsOn = "on";
-    private const string BooleanSttingsOff = "off";
+    private const string BooleanSettingsOff = "off";
 
     private const string BrightnessSettingsSection = "Brightness";
     private const string SleepSettingsSection = "Sleep";
@@ -29,7 +29,10 @@ public sealed partial class MainWindow
     private const string BrightnessSettingsAcBrightnessDefault = "100";
 
     private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedKey = "Battery";
-    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault = BooleanSttingsOff;
+    private const string SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault = BooleanSettingsOff;
+
+    private const string BrightnessSettingsEnabledKey = "Enabled";
+    private const string BrightnessSettingsEnabledDefault = BooleanSettingsOn;
 
     /// <summary>
     /// Path to the settings file
@@ -60,6 +63,7 @@ public sealed partial class MainWindow
 
         if(!File.Exists(SettingsPath))
         {
+            IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, BrightnessSettingsEnabledDefault);
             IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryDefault);
             IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, BrightnessSettingsBatteryDefault);
             IniFile.SetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault);
@@ -87,7 +91,7 @@ public sealed partial class MainWindow
 
         // Update the text of the menu flyout item based on the current prevent sleep settings status
         MfiPreventSleepSettings.Text =
-            IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, BooleanSttingsOff) == BooleanSettingsOn
+            IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault) == BooleanSettingsOn
             ? "Prevent Sleep (External Monitor): Off"
             : "Prevent Sleep (External Monitor): On";
     }
@@ -108,11 +112,32 @@ public sealed partial class MainWindow
 
     private void OnPreventSleepSettingsMenuFlyoutItemClicked(object sender, RoutedEventArgs e)
     {
-        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, BooleanSttingsOff) == BooleanSettingsOn;
-        var newValue = isEnabled ? BooleanSttingsOff : BooleanSettingsOn;
+        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault) == BooleanSettingsOn;
+        var newValue = isEnabled ? BooleanSettingsOff : BooleanSettingsOn;
         IniFile.SetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, newValue);
 
         UpdatePreventSleepSettingsMenuFlyoutItemText();
+    }
+
+    private void OnScreenBrightnessByBatteryMenuFlyoutItemClicked(object sender, RoutedEventArgs e)
+    {
+        var isEnabled = IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, BrightnessSettingsEnabledDefault) == BooleanSettingsOn;
+        var newValue = isEnabled ? BooleanSettingsOff : BooleanSettingsOn;
+        IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, newValue);
+
+        UpdateScreenBrightnessByBatteryMenuFlyoutItemText();
+    }
+
+    private void UpdateScreenBrightnessByBatteryMenuFlyoutItemText()
+    {
+        // Get the menu flyout item
+        var menuFlyoutItem = MfiScreenBrightnessByBattery;
+
+        // Update the text of the menu flyout item based on the current screen brightness by battery status
+        menuFlyoutItem.Text =
+            IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, BrightnessSettingsEnabledDefault) == BooleanSettingsOn
+            ? "Screen Brightness by Battery: Off"
+            : "Screen Brightness by Battery: On";
     }
 
     /// <summary>
