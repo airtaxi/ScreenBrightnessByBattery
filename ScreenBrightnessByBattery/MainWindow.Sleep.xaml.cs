@@ -18,11 +18,9 @@ public sealed partial class MainWindow
     private static void OnSleepTimerElapsed(object sender, ElapsedEventArgs e)
     {
         var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, SleepSettingsPreventSleepWhenExternalMonitorConnectedDefault) == BooleanSettingsOn;
-
-        var isActive = SleepModeHelper.IsPreventingActive();
         var isExternalMonitorConnected = SleepModeHelper.IsExternalMonitorConnected();
 
-        if (isEnabled && isExternalMonitorConnected && !isActive) SleepModeHelper.PreventSleepMode(true);
-        else if (!isEnabled && isActive) SleepModeHelper.PreventSleepMode(false);
+        if (isEnabled && isExternalMonitorConnected) SleepModeHelper.PreventSleepMode(true);
+        else SleepModeHelper.PreventSleepMode(false);
     }
 }
