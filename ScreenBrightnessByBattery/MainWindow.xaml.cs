@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.Windows.System.Power;
 using ScreenBrightnessByBattery.Helpers;
 using System;
@@ -44,14 +44,19 @@ public sealed partial class MainWindow
     /// Change it if you want
     /// </summary>
     private static readonly System.Timers.Timer BrightnessTimer = new(1500);
-    private static readonly System.Timers.Timer SleepTimer = new(1500);
+
+    /// <summary>
+    /// Uses DispatcherTimer to ensure SetExecutionState is called on unique thread (UI thread).
+    /// see: https://stackoverflow.com/questions/76111050/setthreadexecutionstate-with-just-es-continuous-dont-enable-sleep-on-windows-11s
+    /// </summary>
+    private static readonly DispatcherTimer SleepTimer = new() { Interval = TimeSpan.FromMilliseconds(1500) };
 
     static MainWindow()
     {
         BrightnessTimer.Elapsed += OnBrightnessTimerElapsed;
         BrightnessTimer.Start();
 
-        SleepTimer.Elapsed += OnSleepTimerElapsed;
+        SleepTimer.Tick += OnSleepTimerTick;
         SleepTimer.Start();
     }
 
