@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.ComponentModel;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace ScreenBrightnessByBattery.Helpers;
 
@@ -16,16 +13,39 @@ public static partial class SleepModeHelper
     [LibraryImport("kernel32.dll", SetLastError = true)]
     private static partial ExecutionState SetThreadExecutionState(ExecutionState esFlags);
 
-    [DllImport("user32.dll", EntryPoint = "EnumDisplayDevicesW", CharSet = CharSet.Unicode)]
+    // Replace the static readonly field with a static property to return a new Guid instance each time
+    private static Guid GUID_DEVCLASS_MONITOR => new("4D36E96E-E325-11CE-BFC1-08002BE10318");
+
+    private const int DIGCF_PRESENT = 0x00000002; // Device Manager default view (devices that are currently present)
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct SP_DEVINFO_DATA
+    {
+        public int cbSize;
+        public Guid ClassGuid;
+        public uint DevInst;
+        public IntPtr Reserved;
+    }
+
 #pragma warning disable IDE0079 // Remove unnecessary suppression
-#pragma warning disable SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
-    private static extern bool EnumDisplayDevices(
-#pragma warning restore SYSLIB1054 // Use 'LibraryImportAttribute' instead of 'DllImportAttribute' to generate P/Invoke marshalling code at compile time
+#pragma warning disable SYSLIB1054 // Using DllImport for compatibility;
+    [DllImport("setupapi.dll", SetLastError = true)]
+    private static extern IntPtr SetupDiGetClassDevs(
+        ref Guid ClassGuid,
+        IntPtr Enumerator,
+        IntPtr hwndParent,
+        int Flags);
+
+    [DllImport("setupapi.dll", SetLastError = true)]
+    private static extern bool SetupDiEnumDeviceInfo(
+        IntPtr DeviceInfoSet,
+        uint MemberIndex,
+        ref SP_DEVINFO_DATA DeviceInfoData);
+
+    [DllImport("setupapi.dll", SetLastError = true)]
+    private static extern bool SetupDiDestroyDeviceInfoList(IntPtr DeviceInfoSet);
+#pragma warning restore SYSLIB1054
 #pragma warning restore IDE0079 // Remove unnecessary suppression
-        string lpDevice,
-        uint iDevNum,
-        ref DISPLAY_DEVICE lpDisplayDevice,
-        uint dwFlags);
 
     // Constants for controlling screen saver and sleep mode
     [Flags]
@@ -37,23 +57,6 @@ public static partial class SleepModeHelper
         ES_SYSTEM_REQUIRED = 0x00000001,
     }
 
-    // Constants for EnumDisplayDevices
-    private const uint DISPLAY_DEVICE_MIRRORING_DRIVER = 0x00000008;
-
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    private struct DISPLAY_DEVICE
-    {
-        public uint cb;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
-        public string DeviceName;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-        public string DeviceString;
-        public uint StateFlags;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-        public string DeviceID;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
-        public string DeviceKey;
-    }
     #endregion
 
     private static bool s_isPreventingActive = false;
@@ -64,26 +67,39 @@ public static partial class SleepModeHelper
     /// <returns>Total number of display devices</returns>
     public static int GetTotalDisplayCount()
     {
-        var count = 0;
-        var device = new DISPLAY_DEVICE();
-        device.cb = (uint)Marshal.SizeOf(device);
+        // Create a local variable to hold the GUID value
+        Guid monitorClassGuid = GUID_DEVCLASS_MONITOR;
+        IntPtr hDevInfo = SetupDiGetClassDevs(ref monitorClassGuid, IntPtr.Zero, IntPtr.Zero, DIGCF_PRESENT);
+        if (hDevInfo == IntPtr.Zero || hDevInfo == new IntPtr(-1))
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "SetupDiGetClassDevs failed.");
 
-        uint deviceIndex = 0;
-        while (EnumDisplayDevices(null, deviceIndex, ref device, 0))
+        try
         {
-            // Count all display devices except virtual mirroring drivers
-            if ((device.StateFlags & DISPLAY_DEVICE_MIRRORING_DRIVER) == 0) count++;
+            int count = 0;
+            var devInfo = new SP_DEVINFO_DATA { cbSize = Marshal.SizeOf<SP_DEVINFO_DATA>() };
 
-            deviceIndex++;
+            for (uint i = 0; SetupDiEnumDeviceInfo(hDevInfo, i, ref devInfo); i++)
+            {
+                count++;
+                devInfo.cbSize = Marshal.SizeOf<SP_DEVINFO_DATA>(); // reset for next iteration
+            }
+
+            // End of enumeration -> ERROR_NO_MORE_ITEMS (259). Other errors should be surfaced.
+            int err = Marshal.GetLastWin32Error();
+            if (err != 0 && err != 259)
+                throw new Win32Exception(err, "SetupDiEnumDeviceInfo returned an error.");
+
+            return count;
         }
-
-        return count;
+        finally
+        {
+            SetupDiDestroyDeviceInfoList(hDevInfo);
+        }
     }
 
     /// <summary>
     /// Checks if multiple monitors are available (internal + external, regardless of power state)
     /// </summary>
-    /// <returns>True if more than one display is available</returns>
     public static bool HasMultipleDisplays() => GetTotalDisplayCount() > 1;
 
     /// <summary>
