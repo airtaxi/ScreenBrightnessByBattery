@@ -134,7 +134,7 @@ public static partial class SleepModeHelper
             // Return true if the operation was successful
             return result != 0;
         }
-        catch (Exception)
+        catch
         {
             s_isPreventingActive = false;
             return false;
@@ -145,8 +145,5 @@ public static partial class SleepModeHelper
     /// Gets the current sleep prevention status
     /// </summary>
     /// <returns>True if sleep prevention is active</returns>
-    public static bool IsPreventingActive()
-    {
-        return s_isPreventingActive;
-    }
+    public static bool IsPreventingActive() => s_isPreventingActive;
 }
