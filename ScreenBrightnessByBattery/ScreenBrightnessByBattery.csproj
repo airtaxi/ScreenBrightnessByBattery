@@ -32,9 +32,9 @@
 	</ItemGroup>
 	<ItemGroup>
 		<PackageReference Include="H.NotifyIcon.WinUI" Version="2.3.0" />
-		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4188" />
+		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.4948" />
 		<PackageReference Include="Microsoft.WindowsAppSDK" Version="1.7.250606001" />
-		<PackageReference Include="System.Management" Version="9.0.6" />
+		<PackageReference Include="System.Management" Version="9.0.8" />
 		<PackageReference Include="WinUIEx" Version="2.6.0" />
 		<Manifest Include="$(ApplicationManifest)" />
 	</ItemGroup>
