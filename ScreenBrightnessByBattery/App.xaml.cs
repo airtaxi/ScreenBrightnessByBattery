@@ -63,6 +63,11 @@ public partial class App : Application
 
     public App()
     {
+        // Setup exception handlers to prevent the app from crashing and to log the exception.
+        Application.Current.UnhandledException += OnApplicationUnhandledException;
+        AppDomain.CurrentDomain.UnhandledException += OnAppDomainUnhandledException;
+        TaskScheduler.UnobservedTaskException += OnTaskSchedulerUnobservedTaskException;
+
         // Check for duplicated running instances.
         var currentProcess = Process.GetCurrentProcess();
         var processes = Process.GetProcessesByName(currentProcess.ProcessName);
@@ -77,6 +82,33 @@ public partial class App : Application
         Environment.CurrentDirectory = AppContext.BaseDirectory;
 
         InitializeComponent();
+    }
+
+    private void OnTaskSchedulerUnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e) => WriteException(e.Exception);
+    private void OnAppDomainUnhandledException(object sender, System.UnhandledExceptionEventArgs e) => WriteException(e.ExceptionObject as Exception);
+    private void OnApplicationUnhandledException(object sender, Microsoft.UI.Xaml.UnhandledExceptionEventArgs e)
+    {
+        e.Handled = true;
+        WriteException(e.Exception);
+    }
+
+    public static void WriteException(Exception exception)
+    {
+        var baseDirectory = AppContext.BaseDirectory;
+        var path = Path.Combine(baseDirectory, "error.log");
+
+        if (exception is null)
+        {
+            File.AppendAllText(path, $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] UNKNOWN\n({baseDirectory})\n\n");
+            return;
+        }
+
+        var exceptionName = exception.GetType().Name;
+
+        var text = $"[{DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}] ({exceptionName}) {exception?.Message ?? "UNKNOWN"}: {exception?.StackTrace ?? "UNKNOWN"}\n({baseDirectory})\n\n";
+        File.AppendAllText(path, text);
+
+        if (exception.InnerException is not null) WriteException(exception.InnerException);
     }
 
     protected override async void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
