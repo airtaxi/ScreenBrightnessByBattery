@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 using System.Timers;
 
 namespace ScreenBrightnessByBattery;
@@ -16,12 +16,13 @@ public sealed partial class MainWindow
     /// Handles the event when the brightness timer elapses, applying settings and saving the current brightness
     /// configuration.
     /// </summary>
-    private static async void OnBrightnessTimerElapsed(object sender, ElapsedEventArgs e)
+    private static void OnBrightnessTimerElapsed(object sender, ElapsedEventArgs e)
     {
-        var isEnabled = IniFile.GetValue(SettingsPath, SleepSettingsSection, SleepSettingsPreventSleepWhenExternalMonitorConnectedKey, BrightnessSettingsEnabledDefault) == BooleanSettingsOn;
+        var value = IniFile.GetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsEnabledKey, BrightnessSettingsEnabledDefault);
+        var isEnabled = value == BooleanSettingsOn;
         if (!isEnabled) return;
 
-        await ApplySettingsAsync(); // Application must be called first in order to prevent settings overwrite
+        ApplySettings(); // Application must be called first in order to prevent settings overwrite
         SaveCurrentBrightnessSettings();
     }
 
@@ -40,7 +41,7 @@ public sealed partial class MainWindow
     /// Applies the brightness settings based on the current power supply status
     /// Also saves the current brightness settings to the settings file
     /// </summary>
-    private static async Task ApplySettingsAsync()
+    private static void ApplySettings()
     {
         if (IsOnBattery)
         {
@@ -72,16 +73,7 @@ public sealed partial class MainWindow
             // Apply the brightness settings
             Debug.WriteLine($"Applying battery brightness {brightness}");
 
-            // Bugfix: Set different two brightness values to force the brightness to change
-            // (Maybe on surface devices. My device has this issue)
-            if (brightness > 50) PowerConfigBrightnessHelper.Set(25);
-            else PowerConfigBrightnessHelper.Set(75);
-
-            // Wait for a while to let the brightness change (500ms is adequate)
-            await Task.Delay(500);
-
-            // Set the actual brightness
-            PowerConfigBrightnessHelper.Set(brightness);
+            BrightnessHelper.Set(brightness);
             s_wasOnBattery = true;
         }
         else
@@ -113,16 +105,7 @@ public sealed partial class MainWindow
             // Apply the brightness settings
             Debug.WriteLine($"Applying AC brightness {brightness}");
 
-            // Bugfix: Set different two brightness values to force the brightness to change
-            // (Maybe on surface devices. My device has this issue)
-            if (brightness > 50) PowerConfigBrightnessHelper.Set(25);
-            else PowerConfigBrightnessHelper.Set(75);
-
-            // Wait for a while to let the brightness change (500ms is adequate)
-            await Task.Delay(500);
-
-            // Set the actual brightness
-            PowerConfigBrightnessHelper.Set(brightness);
+            BrightnessHelper.Set(brightness);
             s_wasOnBattery = false;
         }
     }
@@ -145,7 +128,7 @@ public sealed partial class MainWindow
             }
 
             // Otherwise, save the current brightness
-            var currentBrightness = PowerConfigBrightnessHelper.Get(!IsOnBattery);
+            var currentBrightness = BrightnessHelper.Get();
             Debug.WriteLine($"Saving battery brightness: {currentBrightness}");
             IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsBatteryKey, currentBrightness.ToString());
         }
@@ -162,7 +145,7 @@ public sealed partial class MainWindow
             }
 
             // Otherwise, save the current brightness
-            var currentBrightness = PowerConfigBrightnessHelper.Get(!IsOnBattery);
+            var currentBrightness = BrightnessHelper.Get();
             Debug.WriteLine($"Saving AC brightness: {currentBrightness}");
             IniFile.SetValue(SettingsPath, BrightnessSettingsSection, BrightnessSettingsAcKey, currentBrightness.ToString());
         }
