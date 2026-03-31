@@ -1,5 +1,7 @@
 # Screen Brightness By Battery
 
+**[한국어](README.ko.md)** | English
+
 A lightweight Windows application that automatically adjusts your screen brightness based on your device's power state (battery or AC power) and prevents sleep mode when an external monitor is connected.
 
 ![image](https://github.com/user-attachments/assets/9a6db803-8424-4cba-a9e3-1d2b48b3c14b)
