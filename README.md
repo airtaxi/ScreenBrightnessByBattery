@@ -2,69 +2,69 @@
 
 **[한국어](README.ko.md)** | English
 
-A lightweight Windows application that automatically adjusts your screen brightness based on your device's power state (battery or AC power) and prevents sleep mode when an external monitor is connected.
+A Windows application that adjusts screen brightness based on power state (battery or AC) and can prevent sleep mode when an external monitor is connected.
 
 ![image](https://github.com/user-attachments/assets/9a6db803-8424-4cba-a9e3-1d2b48b3c14b)
 
 ## Features
 
-- **Automatic Brightness Control**: Adjusts screen brightness automatically when switching between battery and AC power.
-- **Smart Sleep Prevention**: Optionally prevents your device from entering sleep mode when an external monitor is connected.
-- **System Tray Integration**: Runs silently in the system tray for easy access to settings.
-- **Adaptive Brightness Support**: Supports Windows adaptive brightness feature.
-- **Auto-start Option**: Can be set to start automatically with Windows.
-- **Simple Configuration**: Uses an easy-to-edit INI file for settings.
+- **Automatic Brightness Control**: Adjusts screen brightness when switching between battery and AC power.
+- **Sleep Prevention**: Optionally prevents sleep mode when an external monitor is connected.
+- **System Tray Integration**: Runs in the system tray with quick access to settings.
+- **Adaptive Brightness Support**: Supports Windows adaptive brightness.
+- **Auto-start Option**: Can start automatically with Windows.
+- **INI File Configuration**: Settings stored in an editable INI file.
 
 ## How It Works
 
 ### Brightness Control
 
-The application automatically detects when your device switches between battery power and AC power, then adjusts the screen brightness according to your preferences:
+The application detects when your device switches between battery and AC power, then adjusts screen brightness according to your settings:
 
-- When running on **battery power**: Sets brightness to a lower value to save energy
-- When plugged into **AC power**: Sets brightness to a higher value for better visibility
-- Supports **adaptive brightness** setting ("auto" mode)
+- On **battery power**: Sets brightness to a lower value to save energy
+- On **AC power**: Sets brightness to a higher value for better visibility
+- Supports **adaptive brightness** ("auto" mode)
 
 ### Sleep Prevention
 
 When enabled, the application will:
 
 - Detect when an external monitor is connected
-- Prevent the system from entering sleep mode while the external monitor remains connected
+- Prevent sleep mode while the external monitor remains connected
 - Allow normal sleep behavior when the external monitor is disconnected
 
 ## Settings
 
-The application stores your preferences in a `settings.ini` file with the following sections:
+The application stores preferences in a `settings.ini` file with the following sections:
 
 ### [Brightness] Section
 
-- `Enabled`: Whether the brightness control feature is enabled ("on" or "off")
-- `Battery`: Brightness level when on battery power (0-100 or "auto")
-- `AC`: Brightness level when on AC power (0-100 or "auto")
+- `Enabled`: Whether brightness control is enabled ("on" or "off")
+- `Battery`: Brightness level on battery power (0-100 or "auto")
+- `AC`: Brightness level on AC power (0-100 or "auto")
 
 ### [Sleep] Section
 
-- `Enabled`: Whether to prevent sleep mode when external monitor is connected ("on" or "off")
+- `Enabled`: Whether to prevent sleep when an external monitor is connected ("on" or "off")
 
 ## System Requirements
 
 - Windows 10/11 (10.0.17763.0 or higher)
-- Compatible with x64 and ARM64 architectures
+- x64 and ARM64
 
 ## Installation
 
-1. Download and run installer of the latest release from the Releases page
-2. Run `Screen Brightness By Battery` from start menu
-3. The application will appear in your system tray
+1. Download and run the installer from the Releases page
+2. Run `Screen Brightness By Battery` from the Start menu
+3. The application appears in the system tray
 
 ## Usage
 
 - **Right-click** the system tray icon to access settings
-- Select **"Screen Brightness by Battery: Enabled/Disabled"** to toggle the brightness control feature
-- Select **"Prevent Sleep (External Monitor): Enabled/Disabled"** to toggle the sleep prevention feature
+- Select **"Screen Brightness by Battery: Enabled/Disabled"** to toggle brightness control
+- Select **"Prevent Sleep (External Monitor): Enabled/Disabled"** to toggle sleep prevention
 - Select **"Open Settings File"** to manually edit your configuration
-- Select **"Add to Startup Process"** to make the application start with Windows
+- Select **"Add to Startup Process"** to start the application with Windows
 
 ## Building from Source
 
@@ -89,7 +89,7 @@ This project uses:
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE.txt](LICENSE.txt) file for details.
+MIT License. See [LICENSE.txt](LICENSE.txt) for details.
 
 ## Author
 
